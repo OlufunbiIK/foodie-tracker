@@ -2,30 +2,87 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Header } from "./components/Header";
 import { Foods } from "./components/Foods";
+import AuthPage from "./components/Auth";
 
 export default function App() {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Existing recipe app state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [resultCount, setResultCount] = useState(0);
   const [liveSearchEnabled, setLiveSearchEnabled] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
 
+  // Check for existing authentication on app load
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      // In a real app, you'd check for stored auth tokens, session storage, etc.
+      const storedUser = localStorage.getItem("user");
+      const authToken = localStorage.getItem("authToken");
+
+      if (storedUser && authToken) {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      }
+
+      setIsLoading(false);
+    };
+
+    // Simulate checking auth status
+    setTimeout(checkAuthStatus, 1000);
+  }, []);
+
+  // Handle successful authentication
+  function handleAuthSuccess(userData) {
+    setUser(userData);
+    setIsAuthenticated(true);
+
+    // In a real app, you'd store the auth token and user data
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("authToken", "your-auth-token"); // This would come from your API
+
+    console.log("User authenticated:", userData);
+  }
+
+  // Handle logout
+  function handleLogout() {
+    setUser(null);
+    setIsAuthenticated(false);
+
+    // Clear stored auth data
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+
+    // Reset recipe app state
+    setSearchQuery("");
+    setSelectedRecipe(null);
+    setResultCount(0);
+    setLiveSearchEnabled(false);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+      setSearchTimeout(null);
+    }
+
+    console.log("User logged out");
+  }
+
+  // Existing recipe app functions
   function handleSearch(query) {
     setSearchQuery(query);
 
-    // If live search is enabled, implement debounced search
     if (liveSearchEnabled) {
-      // Clear existing timeout
       if (searchTimeout) {
         clearTimeout(searchTimeout);
       }
 
-      // Set new timeout for debounced search
       const newTimeout = setTimeout(() => {
-        // This would trigger immediate search in Foods component
         console.log("Live searching for:", query);
-        // The Foods component will automatically react to searchQuery changes
-      }, 300); // 300ms debounce
+      }, 300);
 
       setSearchTimeout(newTimeout);
     }
@@ -36,13 +93,11 @@ export default function App() {
 
     if (isActive) {
       console.log("Live search activated - searches will happen as you type");
-      // If there's already a query when live search is enabled, trigger search
       if (searchQuery) {
         console.log("Performing live search for existing query:", searchQuery);
       }
     } else {
       console.log("Live search deactivated - manual search mode");
-      // Clear any pending search timeouts
       if (searchTimeout) {
         clearTimeout(searchTimeout);
         setSearchTimeout(null);
@@ -59,15 +114,13 @@ export default function App() {
   }
 
   // Update result count when search results change
-  // This would ideally be passed back from the Foods component
   useEffect(() => {
-    // Simulate result count update - in a real app, this would come from Foods component
-    if (searchQuery) {
+    if (searchQuery && isAuthenticated) {
       setResultCount(Math.floor(Math.random() * 50) + 1);
     } else {
       setResultCount(0);
     }
-  }, [searchQuery]);
+  }, [searchQuery, isAuthenticated]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -78,6 +131,27 @@ export default function App() {
     };
   }, [searchTimeout]);
 
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-yellow-300 to-orange-400 rounded-full flex items-center justify-center shadow-xl mb-4 mx-auto animate-spin">
+            <span className="text-2xl">🍛</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Foodie Tracker</h2>
+          <p className="text-white/80">Loading your culinary experience...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication page if not authenticated
+  if (!isAuthenticated) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // Show main recipe app if authenticated
   return (
     <div className="min-h-screen bg-gray-900">
       <Header
@@ -85,6 +159,8 @@ export default function App() {
         searchQuery={searchQuery}
         resultCount={resultCount}
         onLiveSearchToggle={handleLiveSearchToggle}
+        user={user}
+        onLogout={handleLogout}
       />
       <Foods
         onDisplay={handleRecipeDisplay}
@@ -96,6 +172,9 @@ export default function App() {
       <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded-lg text-sm max-w-xs">
         <h3 className="font-bold mb-2">Debug Info:</h3>
         <p>
+          <strong>User:</strong> {user?.name || user?.email || "Guest"}
+        </p>
+        <p>
           <strong>Query:</strong> {searchQuery || "None"}
         </p>
         <p>
@@ -104,6 +183,12 @@ export default function App() {
         <p>
           <strong>Results:</strong> {resultCount}
         </p>
+        <button
+          onClick={handleLogout}
+          className="mt-2 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs transition-colors"
+        >
+          Logout
+        </button>
         <p className="text-xs text-gray-300 mt-2">
           {liveSearchEnabled
             ? "Search happens as you type (300ms delay)"

@@ -11,6 +11,7 @@ export function Foods({ onDisplay, searchQuery = "" }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeRecipeId, setActiveRecipeId] = useState(null);
 
   // API Configuration
   const [apiConfig, setApiConfig] = useState({
@@ -235,6 +236,7 @@ export function Foods({ onDisplay, searchQuery = "" }) {
 
   // Rest of your existing functions remain the same
   function handleRecipeDisplay(recipe) {
+    setActiveRecipeId(recipe.id);
     setSelectedRecipe(recipe);
     if (onDisplay) {
       onDisplay(recipe);
@@ -475,7 +477,6 @@ export function Foods({ onDisplay, searchQuery = "" }) {
             </div>
           )}
 
-          {/* Rest of your existing JSX remains the same */}
           {isLeftCardOpen && !loading && (
             <div className="p-4">
               {filteredRecipes.length === 0 && searchQuery ? (
@@ -486,61 +487,77 @@ export function Foods({ onDisplay, searchQuery = "" }) {
                   </p>
                 </div>
               ) : (
-                filteredRecipes.map((recipe) => (
-                  <div
-                    key={recipe.id}
-                    className="flex items-center p-3 mb-3 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors duration-200"
-                    onClick={() => handleRecipeDisplay(recipe)}
-                  >
-                    <img
-                      className="w-16 h-16 object-cover rounded-lg mr-4"
-                      src={recipe.image || "https://via.placeholder.com/60"}
-                      alt={recipe.title || "Recipe"}
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/60";
-                      }}
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white mb-1">
-                        {recipe.title || "Recipe Title"}
-                      </h3>
-                      <div className="flex flex-wrap items-center text-gray-400 text-sm gap-2">
-                        <span>⭐ {recipe.rating || "4.0"}</span>
-                        <span>{recipe.readyInMinutes} min</span>
-                        <span>{recipe.servings} servings</span>
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            recipe.difficulty === "Easy"
-                              ? "bg-green-600"
-                              : recipe.difficulty === "Medium"
-                              ? "bg-yellow-600"
-                              : "bg-red-600"
+                filteredRecipes.map((recipe) => {
+                  const isActive = activeRecipeId === recipe.id;
+
+                  return (
+                    <div
+                      key={recipe.id}
+                      className={`flex items-center p-3 mb-3 rounded-lg cursor-pointer transition-colors duration-200 ${
+                        isActive
+                          ? "bg-blue-600 hover:bg-blue-700 border-2 border-blue-400"
+                          : "hover:bg-gray-700"
+                      }`}
+                      onClick={() => handleRecipeDisplay(recipe)}
+                    >
+                      <img
+                        className="w-16 h-16 object-cover rounded-lg mr-4"
+                        src={recipe.image || "https://via.placeholder.com/60"}
+                        alt={recipe.title || "Recipe"}
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/60";
+                        }}
+                      />
+                      <div className="flex-1">
+                        <h3
+                          className={`text-lg font-semibold mb-1 ${
+                            isActive ? "text-white" : "text-white"
                           }`}
                         >
-                          {recipe.difficulty}
-                        </span>
-                        {recipe.cuisine && (
-                          <span className="px-2 py-1 bg-purple-600 rounded text-xs">
-                            {recipe.cuisine}
+                          {recipe.title || "Recipe Title"}
+                        </h3>
+                        <div
+                          className={`flex flex-wrap items-center text-sm gap-2 ${
+                            isActive ? "text-blue-100" : "text-gray-400"
+                          }`}
+                        >
+                          <span>⭐ {recipe.rating || "4.0"}</span>
+                          <span>{recipe.readyInMinutes} min</span>
+                          <span>{recipe.servings} servings</span>
+                          <span
+                            className={`px-2 py-1 rounded text-xs ${
+                              recipe.difficulty === "Easy"
+                                ? "bg-green-600"
+                                : recipe.difficulty === "Medium"
+                                ? "bg-yellow-600"
+                                : "bg-red-600"
+                            }`}
+                          >
+                            {recipe.difficulty}
                           </span>
-                        )}
+                          {recipe.cuisine && (
+                            <span className="px-2 py-1 bg-purple-600 rounded text-xs">
+                              {recipe.cuisine}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className="text-red-500 hover:text-red-400 transition-colors p-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFavorite(recipe.id);
+                        }}
+                      >
+                        <Heart
+                          className={`w-5 h-5 ${
+                            recipe.isFavorite ? "fill-current" : ""
+                          }`}
+                        />
                       </div>
                     </div>
-                    <div
-                      className="text-red-500 hover:text-red-400 transition-colors p-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFavorite(recipe.id);
-                      }}
-                    >
-                      <Heart
-                        className={`w-5 h-5 ${
-                          recipe.isFavorite ? "fill-current" : ""
-                        }`}
-                      />
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
