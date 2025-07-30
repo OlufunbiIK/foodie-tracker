@@ -1,5 +1,6 @@
 import { Heart, Minus, Plus, X, Settings } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import Ratings from "./Ratings";
 
 export function Foods({ onDisplay, searchQuery = "" }) {
   const [isLeftCardOpen, setIsLeftCardOpen] = useState(true);
@@ -313,7 +314,7 @@ export function Foods({ onDisplay, searchQuery = "" }) {
   // Settings Modal Component
   const SettingsModal = () =>
     showSettings && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
         <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-white">API Settings</h3>
@@ -425,7 +426,7 @@ export function Foods({ onDisplay, searchQuery = "" }) {
             <div className="flex gap-2">
               <button
                 onClick={refreshRecipes}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors"
+                className="px-3 py-1 bg-[#bb5aa8] hover:bg-[#984888] rounded-lg text-sm transition-colors"
                 disabled={loading}
               >
                 {loading ? "Loading..." : "Refresh"}
@@ -495,8 +496,8 @@ export function Foods({ onDisplay, searchQuery = "" }) {
                       key={recipe.id}
                       className={`flex items-center p-3 mb-3 rounded-lg cursor-pointer transition-colors duration-200 ${
                         isActive
-                          ? "bg-blue-600 hover:bg-blue-700 border-2 border-blue-400"
-                          : "hover:bg-gray-700"
+                          ? "bg-gray-700 hover:border-blue-500 border-2 border-blue-400"
+                          : "hover:bg-gray-600"
                       }`}
                       onClick={() => handleRecipeDisplay(recipe)}
                     >
@@ -821,6 +822,8 @@ export function Foods({ onDisplay, searchQuery = "" }) {
                         <div className="text-gray-400 text-sm">Calories</div>
                       </div>
                     </div>
+
+                    <Ratings maxRating={5} />
 
                     <div>
                       <h4 className="text-lg font-bold text-white mb-3">

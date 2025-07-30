@@ -9,6 +9,7 @@ import {
   User,
   LogOut,
   Settings,
+  ChefHat,
 } from "lucide-react";
 
 // Header Component
@@ -56,7 +57,7 @@ export function Header({
   }
 
   return (
-    <header className="w-full relative overflow-hidden">
+    <header className="w-full relative overflow-hidden z-50">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400"></div>
 
@@ -67,7 +68,9 @@ export function Header({
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-r from-yellow-300 to-orange-400 rounded-full flex items-center justify-center shadow-lg transform hover:rotate-12 transition-all duration-300">
-                <span className="text-xl">🍛</span>
+                <span className="text-xl">
+                  <ChefHat />
+                </span>
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-yellow-100 to-orange-200 bg-clip-text text-transparent drop-shadow-lg">
                 Foodie
@@ -146,9 +149,9 @@ export function Header({
                     <span className="text-white font-medium">{user.name}</span>
                   </button>
 
-                  {/* User dropdown menu */}
+                  {/* User dropdown menu - FIXED Z-INDEX */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 backdrop-blur-sm bg-white/95 border border-white/30 rounded-xl shadow-lg overflow-hidden z-50">
+                    <div className="absolute right-0 mt-2 w-48 backdrop-blur-sm bg-white/95 border border-white/30 rounded-xl shadow-lg overflow-hidden z-[9999]">
                       <div className="py-2">
                         <div className="px-4 py-2 border-b border-gray-200">
                           <p className="text-sm font-medium text-gray-900">
@@ -314,10 +317,10 @@ export function Header({
         <div className="absolute top-2 right-2 w-20 h-20 bg-gradient-to-br from-yellow-300/15 to-pink-300/15 rounded-full blur-xl"></div>
         <div className="absolute bottom-2 left-2 w-16 h-16 bg-gradient-to-br from-blue-300/15 to-purple-300/15 rounded-full blur-xl"></div>
 
-        {/* Click outside handler for user menu */}
+        {/* Click outside handler for user menu - FIXED Z-INDEX */}
         {userMenuOpen && (
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[9998]"
             onClick={() => setUserMenuOpen(false)}
           ></div>
         )}
