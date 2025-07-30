@@ -34,7 +34,9 @@ export default function Ratings({ maxRating = 5 }) {
             />
           ))}
         </div>
-        <div className="text-lg font-semibold min-w-[20px]">{rating || ""}</div>
+        <div className="text-lg font-semibold min-w-[20px]">
+          {hovering || rating || ""}
+        </div>
       </div>
     </div>
   );

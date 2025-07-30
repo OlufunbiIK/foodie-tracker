@@ -11,6 +11,7 @@ import {
   Settings,
   ChefHat,
 } from "lucide-react";
+import Result from "./Result";
 
 // Header Component
 export function Header({
@@ -57,12 +58,12 @@ export function Header({
   }
 
   return (
-    <header className="w-full relative overflow-hidden z-50">
+    <header className="w-full relative overflow-visible z-50">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400"></div>
 
       {/* Glass morphism overlay */}
-      <div className="relative backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl m-2 shadow-2xl">
+      <div className="relative backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl m-2 shadow-2xl overflow-visible">
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -80,16 +81,16 @@ export function Header({
               </h1>
             </div>
 
-            {/* Desktop search */}
-            <div className="hidden md:flex items-center space-x-6 flex-1 justify-center max-w-2xl mx-8">
+            {/* Desktop search - Now only shows on large screens */}
+            <div className="hidden lg:flex items-center space-x-6 flex-1 justify-center max-w-2xl mx-8">
               <div className="relative flex-1 group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-purple-300 rounded-xl blur opacity-20 group-hover:opacity-30 transition-all duration-500"></div>
                 <div className="relative flex items-center">
                   <Search className="absolute left-4 text-gray-600 w-5 h-5" />
                   <input
                     type="text"
-                    className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-12 py-3 text-lg text-gray-800 placeholder-gray-500 border border-white/30 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white transition-all duration-500"
-                    placeholder="Search by recipe, ingredient, or cuisine..."
+                    className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-6 py-3 text-lg text-gray-800 placeholder-gray-500 border border-white/30 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white transition-all duration-500"
+                    placeholder="Search by recipe or cuisine..."
                     onChange={handleSearch}
                     value={searchQuery}
                   />
@@ -102,6 +103,10 @@ export function Header({
                     </button>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <Result resultCount={resultCount} searchQuery={searchQuery} />
               </div>
 
               {/* Live Search Toggle Button */}
@@ -135,8 +140,8 @@ export function Header({
               </button>
             </div>
 
-            {/* Desktop User Menu */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Desktop User Menu - Now only shows on large screens */}
+            <div className="hidden lg:flex items-center space-x-4 relative">
               {user && (
                 <div className="relative">
                   <button
@@ -149,38 +154,49 @@ export function Header({
                     <span className="text-white font-medium">{user.name}</span>
                   </button>
 
-                  {/* User dropdown menu - FIXED Z-INDEX */}
+                  {/* User dropdown menu - Fixed positioning and z-index */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 backdrop-blur-sm bg-white/95 border border-white/30 rounded-xl shadow-lg overflow-hidden z-[9999]">
-                      <div className="py-2">
-                        <div className="px-4 py-2 border-b border-gray-200">
-                          <p className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </p>
-                          <p className="text-sm text-gray-600">{user.email}</p>
+                    <>
+                      {/* Backdrop overlay to close menu when clicking outside */}
+                      <div
+                        className="fixed inset-0 z-[100]"
+                        onClick={() => setUserMenuOpen(false)}
+                      ></div>
+
+                      {/* Dropdown menu with proper z-index */}
+                      <div className="absolute right-0 lg:-right-3 top-full mt-2 w-54 backdrop-blur-sm bg-white/95 border border-white/30 rounded-xl shadow-xl overflow-hidden z-[101]">
+                        <div className="py-2">
+                          <div className="px-4 py-2 border-b border-gray-200">
+                            <p className="text-sm font-medium text-gray-900">
+                              {user.name}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {user.email}
+                            </p>
+                          </div>
+                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors">
+                            <Settings className="w-4 h-4" />
+                            <span>Settings</span>
+                          </button>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
                         </div>
-                        <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                          <Settings className="w-4 h-4" />
-                          <span>Settings</span>
-                        </button>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>Sign Out</span>
-                        </button>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Mobile hamburger */}
+            {/* Mobile hamburger - Now shows on small AND medium screens */}
             <button
               onClick={toggleMenu}
-              className="md:hidden relative group p-2 rounded-lg transition-all duration-300 hover:bg-white/15 cursor-pointer z-10"
+              className="lg:hidden relative group p-2 rounded-lg transition-all duration-300 hover:bg-white/15 cursor-pointer z-10"
               type="button"
             >
               <div className="w-8 h-8 flex items-center justify-center">
@@ -193,9 +209,9 @@ export function Header({
             </button>
           </div>
 
-          {/* Mobile menu */}
+          {/* Mobile menu - Now shows on small AND medium screens */}
           <div
-            className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
+            className={`lg:hidden overflow-hidden transition-all duration-500 ease-out ${
               menuIsOpen
                 ? "max-h-96 opacity-100 mt-6"
                 : "max-h-0 opacity-0 mt-0"
@@ -252,7 +268,9 @@ export function Header({
                   )}
                 </div>
               </div>
-
+              <div>
+                <Result resultCount={resultCount} searchQuery={searchQuery} />
+              </div>
               {/* Mobile Live Search Toggle */}
               <button
                 onClick={toggleLiveSearch}
@@ -316,14 +334,6 @@ export function Header({
         {/* Decorative elements */}
         <div className="absolute top-2 right-2 w-20 h-20 bg-gradient-to-br from-yellow-300/15 to-pink-300/15 rounded-full blur-xl"></div>
         <div className="absolute bottom-2 left-2 w-16 h-16 bg-gradient-to-br from-blue-300/15 to-purple-300/15 rounded-full blur-xl"></div>
-
-        {/* Click outside handler for user menu - FIXED Z-INDEX */}
-        {userMenuOpen && (
-          <div
-            className="fixed inset-0 z-[9998]"
-            onClick={() => setUserMenuOpen(false)}
-          ></div>
-        )}
       </div>
     </header>
   );

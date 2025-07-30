@@ -2,7 +2,7 @@ import { Heart, Minus, Plus, X, Settings } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import Ratings from "./Ratings";
 
-export function Foods({ onDisplay, searchQuery = "" }) {
+export function Foods({ onDisplay, searchQuery = "", onResultCountChange }) {
   const [isLeftCardOpen, setIsLeftCardOpen] = useState(true);
   const [isRightCardOpen, setIsRightCardOpen] = useState(true);
   const [recipes, setRecipes] = useState([]);
@@ -203,7 +203,7 @@ export function Foods({ onDisplay, searchQuery = "" }) {
     }
   };
 
-  // Fetch recipes from enhanced API
+  // Initial fetch and refetch when API config changes
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -213,7 +213,6 @@ export function Foods({ onDisplay, searchQuery = "" }) {
           apiConfig.resultsLimit
         );
         setRecipes(transformedRecipes);
-        setFilteredRecipes(transformedRecipes);
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -233,9 +232,38 @@ export function Foods({ onDisplay, searchQuery = "" }) {
     apiConfig.provider,
     apiConfig.spoonacularKey,
     apiConfig.resultsLimit,
+    // Removed onResultCountChange from dependencies to prevent unnecessary refetches
   ]);
 
-  // Rest of your existing functions remain the same
+  // Separate effect for filtering and result count reporting - this won't cause refetches
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredRecipes(recipes);
+      onResultCountChange && onResultCountChange(recipes.length);
+    } else {
+      const filtered = recipes.filter(
+        (recipe) =>
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          recipe.cuisine?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          recipe.tags?.some((tag) =>
+            tag.toLowerCase().includes(searchQuery.toLowerCase())
+          ) ||
+          recipe.ingredients?.some((ingredient) =>
+            ingredient.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+      );
+      setFilteredRecipes(filtered);
+      onResultCountChange && onResultCountChange(filtered.length);
+    }
+  }, [searchQuery, recipes]); // Removed onResultCountChange from dependencies
+
+  // Report result count when onResultCountChange prop changes (without refetching)
+  useEffect(() => {
+    if (onResultCountChange) {
+      onResultCountChange(filteredRecipes.length);
+    }
+  }, [onResultCountChange, filteredRecipes.length]);
+
   function handleRecipeDisplay(recipe) {
     setActiveRecipeId(recipe.id);
     setSelectedRecipe(recipe);
@@ -254,25 +282,6 @@ export function Foods({ onDisplay, searchQuery = "" }) {
   }
 
   const favoriteRecipes = recipes.filter((recipe) => recipe.isFavorite);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredRecipes(recipes);
-    } else {
-      const filtered = recipes.filter(
-        (recipe) =>
-          recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          recipe.cuisine?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          recipe.tags?.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          ) ||
-          recipe.ingredients?.some((ingredient) =>
-            ingredient.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-      );
-      setFilteredRecipes(filtered);
-    }
-  }, [searchQuery, recipes]);
 
   function handleIsLeftCardOpen() {
     setIsLeftCardOpen(!isLeftCardOpen);

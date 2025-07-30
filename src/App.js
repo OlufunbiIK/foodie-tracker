@@ -113,7 +113,6 @@ export default function App() {
     setSelectedRecipe(null);
   }
 
-  // Update result count when search results change
   useEffect(() => {
     if (searchQuery && isAuthenticated) {
       setResultCount(Math.floor(Math.random() * 50) + 1);
@@ -121,6 +120,10 @@ export default function App() {
       setResultCount(0);
     }
   }, [searchQuery, isAuthenticated]);
+
+  function handleResultCountChange(count) {
+    setResultCount(count);
+  }
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -162,10 +165,12 @@ export default function App() {
         user={user}
         onLogout={handleLogout}
       />
+
       <Foods
         onDisplay={handleRecipeDisplay}
         searchQuery={searchQuery}
         liveSearchEnabled={liveSearchEnabled}
+        onResultCountChange={handleResultCountChange} // Add this prop
       />
 
       {/* Debug info - remove in production */}
