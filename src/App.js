@@ -3,6 +3,7 @@ import "./App.css";
 import { Header } from "./components/Header";
 import { Foods } from "./components/Foods";
 import AuthPage from "./components/Auth";
+// import TextExpanderApp from "./components/TextExpanderApp";
 
 export default function App() {
   // Authentication state
@@ -200,6 +201,8 @@ export default function App() {
             : "Search happens when Foods component fetches data"}
         </p>
       </div>
+
+      {/* <TextExpanderApp /> */}
     </div>
   );
 }
